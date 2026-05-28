@@ -6,6 +6,19 @@ import re
 import time
 import os
 import json
+from flask import Flask
+from threading import Thread
+
+# FLASK APP FOR RENDER PORT
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "GER30 BOT RUNNING"
+
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
 
 # LOAD FIREBASE FROM RENDER ENV VARIABLE
 firebase_json = os.environ.get("FIREBASE_KEY")
@@ -19,6 +32,9 @@ firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 print("DAX DE40 automation started...")
+
+# START WEB SERVER THREAD
+Thread(target=run_web).start()
 
 while True:
 
