@@ -4,9 +4,16 @@ from datetime import datetime
 import requests
 import re
 import time
+import os
+import json
 
-# FIREBASE SETUP
-cred = credentials.Certificate("firebase_key.json")
+# LOAD FIREBASE FROM RENDER ENV VARIABLE
+firebase_json = os.environ.get("FIREBASE_KEY")
+
+cred_dict = json.loads(firebase_json)
+
+cred = credentials.Certificate(cred_dict)
+
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
@@ -24,7 +31,6 @@ while True:
 
         print(f"Reading DAX DE40 data at {current_time}")
 
-        # INVESTING.COM REQUEST
         headers = {
             "User-Agent": "Mozilla/5.0"
         }
@@ -43,7 +49,6 @@ while True:
 
             percentage = match.group(1)
 
-            # SIGNAL LOGIC
             if float(percentage) > 0:
                 direction = "BUY"
                 confidence = 90
@@ -69,10 +74,10 @@ while True:
         else:
             print("Percentage data not found.")
 
-        # WAIT 5 MINUTES DURING ACTIVE WINDOW
+        # WAIT 5 MINUTES
         time.sleep(300)
 
     else:
 
-        # WAIT 1 MINUTE OUTSIDE ACTIVE WINDOW
+        # WAIT 1 MINUTE
         time.sleep(60)
