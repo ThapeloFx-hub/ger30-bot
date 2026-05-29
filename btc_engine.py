@@ -1,8 +1,8 @@
-from tradingview_ta import TA_Handler, Interval
 from flask import Flask
 from threading import Thread
 import time
 import os
+import requests
 
 # FLASK SERVER
 app = Flask(__name__)
@@ -24,23 +24,28 @@ while True:
 
     try:
 
-        print("Fetching BTC data...")
+        print("Fetching BTC candles...")
 
-        btc = TA_Handler(
-            symbol="BTCUSDT",
-            screener="crypto",
-            exchange="BINANCE",
-            interval=Interval.INTERVAL_4_HOURS
-        )
+        url = "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=4h&limit=5"
 
-        print("Connecting to TradingView...")
+        response = requests.get(url)
 
-        analysis = btc.get_analysis()
+        data = response.json()
 
-        print("Analysis fetched successfully")
+        print("BTC H4 CANDLES RECEIVED")
 
-        print("BTC H4 SUMMARY:")
-        print(analysis.summary)
+        latest_candle = data[-1]
+
+        open_price = latest_candle[1]
+        high_price = latest_candle[2]
+        low_price = latest_candle[3]
+        close_price = latest_candle[4]
+
+        print("LATEST H4 CANDLE:")
+        print("OPEN:", open_price)
+        print("HIGH:", high_price)
+        print("LOW:", low_price)
+        print("CLOSE:", close_price)
 
     except Exception as e:
         print("ERROR:", e)
