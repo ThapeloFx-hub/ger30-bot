@@ -16,7 +16,9 @@ def run_web():
     app.run(host="0.0.0.0", port=port)
 
 # START WEB SERVER
-Thread(target=run_web).start()
+web_thread = Thread(target=run_web)
+web_thread.daemon = True
+web_thread.start()
 
 print("BTC ENGINE STARTED")
 
@@ -29,6 +31,8 @@ while True:
         url = "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=4h&limit=5"
 
         response = requests.get(url)
+
+        print("Request sent successfully")
 
         data = response.json()
 
