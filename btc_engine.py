@@ -30,7 +30,7 @@ while True:
 
         url = "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=4h&limit=5"
 
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
 
         print("Request sent successfully")
 
