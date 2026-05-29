@@ -24,6 +24,8 @@ while True:
 
     try:
 
+        print("Fetching BTC data...")
+
         btc = TA_Handler(
             symbol="BTCUSDT",
             screener="crypto",
@@ -31,7 +33,11 @@ while True:
             interval=Interval.INTERVAL_4_HOURS
         )
 
+        print("Connecting to TradingView...")
+
         analysis = btc.get_analysis()
+
+        print("Analysis fetched successfully")
 
         print("BTC H4 SUMMARY:")
         print(analysis.summary)
