@@ -16,9 +16,9 @@ def btc_loop():
 
         try:
 
-            print("Fetching BTC price...", flush=True)
+            print("Fetching BTC candle...", flush=True)
 
-            url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+            url = "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=15m&limit=1"
 
             response = requests.get(url, timeout=10)
 
@@ -26,19 +26,17 @@ def btc_loop():
 
             data = response.json()
 
-            print("DATA:", data, flush=True)
+            latest = data[0]
 
-            # SAFETY CHECK
+            open_price = latest[1]
+            high_price = latest[2]
+            low_price = latest[3]
+            close_price = latest[4]
 
-            if "bitcoin" in data:
-
-                btc_price = data["bitcoin"]["usd"]
-
-                print(f"BTC PRICE: {btc_price}", flush=True)
-
-            else:
-
-                print("CoinGecko temporary limit reached", flush=True)
+            print(f"OPEN: {open_price}", flush=True)
+            print(f"HIGH: {high_price}", flush=True)
+            print(f"LOW: {low_price}", flush=True)
+            print(f"CLOSE: {close_price}", flush=True)
 
         except Exception as e:
 
