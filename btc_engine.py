@@ -5,28 +5,53 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import json
 import time
-from threading import Thread
+import threading
 
 # FIREBASE SETUP
+
 firebase_key = os.environ.get("FIREBASE_KEY")
 
 firebase_dict = json.loads(firebase_key)
 
 cred = credentials.Certificate(firebase_dict)
 
-firebase_admin.initialize_app(cred)
+if not firebase_admin._apps:
+    firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
 # FLASK APP
+
 app = Flask(__name__)
 
 @app.route('/')
 def home():
     return "BTC ENGINE AUTO RUNNING"
 
-# ENGINE LOOP
-def run_engine():
+# SEND SIGNAL FUNCTION
+
+def send_signal(signal_type, price):
+
+    print("Sending Signal to Firebase...")
+
+    signal_data = {
+
+        "pair": "BTCUSDT",
+        "signal": signal_type,
+        "price": price,
+        "status": "active",
+        "timeframe": "H4",
+        "time": time.strftime("%Y-%m-%d %H:%M:%S")
+
+    }
+
+    db.collection("btc_signals").add(signal_data)
+
+    print("Signal pushed to Firebase!")
+
+# BTC ENGINE LOOP
+
+def btc_engine():
 
     while True:
 
@@ -46,23 +71,23 @@ def run_engine():
 
             btc_price = data["bitcoin"]["usd"]
 
-            print("BTC PRICE:", btc_price)
+            print(f"BTC Price: {btc_price}")
 
-            signal = "BUY"
+            # SIMPLE SIGNAL LOGIC
 
-            print("Sending signal to Firebase...")
+            if btc_price > 80000:
 
-            db.collection("btc_signals").document("live").set({
+                signal = "SELL"
 
-                "pair": "BTCUSD",
-                "signal": signal,
-                "price": btc_price,
-                "status": "active",
-                "timeframe": "H4"
+            else:
 
-            })
+                signal = "BUY"
 
-            print("Signal pushed to Firebase")
+            print(f"Signal Generated: {signal}")
+
+            send_signal(signal, btc_price)
+
+            print("Waiting 60 seconds...\n")
 
         except Exception as e:
 
@@ -71,11 +96,17 @@ def run_engine():
         time.sleep(60)
 
 # START ENGINE THREAD
-engine_thread = Thread(target=run_engine)
+
+engine_thread = threading.Thread(target=btc_engine)
+
 engine_thread.daemon = True
+
 engine_thread.start()
 
-# RUN SERVER
+print("BTC ENGINE LOOP STARTED")
+
+# RUN FLASK SERVER
+
 if __name__ == "__main__":
 
     port = int(os.environ.get("PORT", 10000))
