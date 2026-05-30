@@ -2,24 +2,43 @@ from flask import Flask
 import time
 import threading
 import os
+import requests
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "BTC ENGINE TEST RUNNING"
+    return "BTC ENGINE RUNNING"
 
-def test_loop():
+def btc_loop():
 
     while True:
 
-        print("ENGINE LOOP WORKING", flush=True)
+        try:
+
+            print("Fetching BTC price...", flush=True)
+
+            url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+
+            response = requests.get(url, timeout=10)
+
+            print("Request successful", flush=True)
+
+            data = response.json()
+
+            btc_price = data["bitcoin"]["usd"]
+
+            print(f"BTC PRICE: {btc_price}", flush=True)
+
+        except Exception as e:
+
+            print("ERROR:", e, flush=True)
 
         time.sleep(10)
 
 if __name__ == "__main__":
 
-    thread = threading.Thread(target=test_loop)
+    thread = threading.Thread(target=btc_loop)
 
     thread.daemon = True
 
