@@ -44,7 +44,8 @@ def btc_loop():
 
             print("ERROR:", e, flush=True)
 
-        time.sleep(900)
+        # WAIT 5 MINUTES
+        time.sleep(300)
 
 if __name__ == "__main__":
 
