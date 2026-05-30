@@ -1,6 +1,7 @@
 from flask import Flask
 import time
 import threading
+import os
 
 app = Flask(__name__)
 
@@ -12,16 +13,23 @@ def test_loop():
 
     while True:
 
-        print("ENGINE LOOP WORKING")
+        print("ENGINE LOOP WORKING", flush=True)
 
         time.sleep(10)
 
-thread = threading.Thread(target=test_loop)
-
-thread.daemon = True
-
-thread.start()
-
 if __name__ == "__main__":
 
-    app.run(host="0.0.0.0", port=10000)
+    thread = threading.Thread(target=test_loop)
+
+    thread.daemon = True
+
+    thread.start()
+
+    port = int(os.environ.get("PORT", 10000))
+
+    app.run(
+        host="0.0.0.0",
+        port=port,
+        debug=False,
+        use_reloader=False
+    )
