@@ -26,9 +26,19 @@ def btc_loop():
 
             data = response.json()
 
-            btc_price = data["bitcoin"]["usd"]
+            print("DATA:", data, flush=True)
 
-            print(f"BTC PRICE: {btc_price}", flush=True)
+            # SAFETY CHECK
+
+            if "bitcoin" in data:
+
+                btc_price = data["bitcoin"]["usd"]
+
+                print(f"BTC PRICE: {btc_price}", flush=True)
+
+            else:
+
+                print("CoinGecko temporary limit reached", flush=True)
 
         except Exception as e:
 
