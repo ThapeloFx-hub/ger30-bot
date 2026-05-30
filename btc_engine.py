@@ -16,9 +16,9 @@ def btc_loop():
 
         try:
 
-            print("Fetching BTC candle...", flush=True)
+            print("Fetching BTC price...", flush=True)
 
-            url = "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=15m&limit=1"
+            url = "https://api.coinbase.com/v2/prices/BTC-USD/spot"
 
             response = requests.get(url, timeout=10)
 
@@ -28,25 +28,15 @@ def btc_loop():
 
             print("DATA:", data, flush=True)
 
-            # CHECK IF BINANCE RETURNED LIST
+            if "data" in data:
 
-            if isinstance(data, list):
+                btc_price = data["data"]["amount"]
 
-                latest = data[0]
-
-                open_price = latest[1]
-                high_price = latest[2]
-                low_price = latest[3]
-                close_price = latest[4]
-
-                print(f"OPEN: {open_price}", flush=True)
-                print(f"HIGH: {high_price}", flush=True)
-                print(f"LOW: {low_price}", flush=True)
-                print(f"CLOSE: {close_price}", flush=True)
+                print(f"BTC PRICE: {btc_price}", flush=True)
 
             else:
 
-                print("Binance temporary error", flush=True)
+                print("Coinbase temporary issue", flush=True)
 
         except Exception as e:
 
