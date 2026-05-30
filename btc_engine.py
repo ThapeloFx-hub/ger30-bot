@@ -5,6 +5,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import json
 import time
+from threading import Thread
 
 # FIREBASE SETUP
 firebase_key = os.environ.get("FIREBASE_KEY")
@@ -17,14 +18,14 @@ firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
-# FLASK
+# FLASK APP
 app = Flask(__name__)
 
 @app.route('/')
 def home():
     return "BTC ENGINE AUTO RUNNING"
 
-# BTC ENGINE LOOP
+# ENGINE LOOP
 def run_engine():
 
     while True:
@@ -37,7 +38,11 @@ def run_engine():
 
             response = requests.get(url, timeout=10)
 
+            print("Binance request successful")
+
             data = response.json()
+
+            print("JSON converted")
 
             latest = data[-1]
 
@@ -47,7 +52,7 @@ def run_engine():
             print("OPEN:", open_price)
             print("CLOSE:", close_price)
 
-            # SIMPLE SIGNAL LOGIC
+            # SIMPLE SIGNAL
             if close_price > open_price:
 
                 signal = "BUY"
@@ -58,7 +63,8 @@ def run_engine():
 
             print("SIGNAL:", signal)
 
-            # SAVE TO FIREBASE
+            print("Sending signal to Firebase...")
+
             db.collection("btc_signals").document("live").set({
 
                 "pair": "BTCUSD",
@@ -78,14 +84,12 @@ def run_engine():
 
         time.sleep(60)
 
-# START ENGINE
-from threading import Thread
-
+# START ENGINE THREAD
 engine_thread = Thread(target=run_engine)
 engine_thread.daemon = True
 engine_thread.start()
 
-# RUN FLASK
+# RUN SERVER
 if __name__ == "__main__":
 
     port = int(os.environ.get("PORT", 10000))
