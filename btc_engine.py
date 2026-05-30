@@ -32,36 +32,23 @@ def run_engine():
 
         try:
 
-            print("Fetching BTC market data...")
+            print("Fetching BTC price from CoinGecko...")
 
-            url = "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=4h&limit=2"
+            url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
 
             response = requests.get(url, timeout=10)
 
-            print("Binance request successful")
+            print("CoinGecko request successful")
 
             data = response.json()
 
             print("JSON converted")
 
-            latest = data[-1]
+            btc_price = data["bitcoin"]["usd"]
 
-            open_price = float(latest[1])
-            close_price = float(latest[4])
+            print("BTC PRICE:", btc_price)
 
-            print("OPEN:", open_price)
-            print("CLOSE:", close_price)
-
-            # SIMPLE SIGNAL
-            if close_price > open_price:
-
-                signal = "BUY"
-
-            else:
-
-                signal = "SELL"
-
-            print("SIGNAL:", signal)
+            signal = "BUY"
 
             print("Sending signal to Firebase...")
 
@@ -69,8 +56,7 @@ def run_engine():
 
                 "pair": "BTCUSD",
                 "signal": signal,
-                "open": open_price,
-                "close": close_price,
+                "price": btc_price,
                 "status": "active",
                 "timeframe": "H4"
 
