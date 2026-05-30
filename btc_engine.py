@@ -26,17 +26,27 @@ def btc_loop():
 
             data = response.json()
 
-            latest = data[0]
+            print("DATA:", data, flush=True)
 
-            open_price = latest[1]
-            high_price = latest[2]
-            low_price = latest[3]
-            close_price = latest[4]
+            # CHECK IF BINANCE RETURNED LIST
 
-            print(f"OPEN: {open_price}", flush=True)
-            print(f"HIGH: {high_price}", flush=True)
-            print(f"LOW: {low_price}", flush=True)
-            print(f"CLOSE: {close_price}", flush=True)
+            if isinstance(data, list):
+
+                latest = data[0]
+
+                open_price = latest[1]
+                high_price = latest[2]
+                low_price = latest[3]
+                close_price = latest[4]
+
+                print(f"OPEN: {open_price}", flush=True)
+                print(f"HIGH: {high_price}", flush=True)
+                print(f"LOW: {low_price}", flush=True)
+                print(f"CLOSE: {close_price}", flush=True)
+
+            else:
+
+                print("Binance temporary error", flush=True)
 
         except Exception as e:
 
