@@ -3,8 +3,26 @@ import time
 import threading
 import os
 import requests
+import firebase_admin
+from firebase_admin import credentials, firestore
+import json
 
 app = Flask(__name__)
+
+# ====================================
+# FIREBASE SETUP
+# ====================================
+
+firebase_key = os.environ.get("FIREBASE_KEY")
+
+firebase_dict = json.loads(firebase_key)
+
+cred = credentials.Certificate(firebase_dict)
+
+if not firebase_admin._apps:
+    firebase_admin.initialize_app(cred)
+
+db = firestore.client()
 
 # ====================================
 # FLASK ROUTE
@@ -13,6 +31,30 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     return "BTC ENGINE RUNNING"
+
+# ====================================
+# SEND SIGNAL TO FIREBASE
+# ====================================
+
+def send_signal(bias, current_price, previous_price):
+
+    print("Sending signal to Firebase...", flush=True)
+
+    signal_data = {
+
+        "pair": "BTCUSD",
+        "bias": bias,
+        "current_price": current_price,
+        "previous_price": previous_price,
+        "timeframe": "M5",
+        "status": "active",
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+
+    }
+
+    db.collection("btc_signals").add(signal_data)
+
+    print("Signal pushed to Firebase!", flush=True)
 
 # ====================================
 # BTC ENGINE
@@ -72,6 +114,13 @@ def btc_loop():
                         bias = "NEUTRAL"
 
                     print(f"BIAS: {bias}", flush=True)
+
+                    # SEND TO FIREBASE
+                    send_signal(
+                        bias,
+                        btc_price,
+                        previous_price
+                    )
 
                 else:
 
